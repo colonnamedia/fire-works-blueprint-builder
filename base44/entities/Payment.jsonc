@@ -1,0 +1,44 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "business_id": {
+      "type": "string",
+      "title": "Business ID"
+    },
+    "draft_id": {
+      "type": "string",
+      "title": "Draft ID"
+    },
+    "amount": {
+      "type": "number",
+      "title": "Amount"
+    },
+    "currency": {
+      "type": "string",
+      "title": "Currency"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "completed",
+        "failed",
+        "refunded"
+      ],
+      "title": "Payment Status"
+    },
+    "payment_provider": {
+      "type": "string",
+      "title": "Payment Provider"
+    },
+    "transaction_id": {
+      "type": "string",
+      "title": "Transaction ID"
+    }
+  },
+  "required": [
+    "business_id",
+    "amount"
+  ]
+}

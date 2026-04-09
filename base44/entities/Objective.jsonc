@@ -1,0 +1,42 @@
+{
+  "name": "Objective",
+  "type": "object",
+  "properties": {
+    "draft_id": {
+      "type": "string",
+      "title": "Draft ID"
+    },
+    "objective_name": {
+      "type": "string",
+      "title": "Objective Name"
+    },
+    "target_result": {
+      "type": "string",
+      "title": "Target Result"
+    },
+    "why_it_matters": {
+      "type": "string",
+      "title": "Why It Matters"
+    },
+    "related_channel": {
+      "type": "string",
+      "title": "Related Channel"
+    },
+    "metric": {
+      "type": "string",
+      "title": "Metric"
+    },
+    "weekly_focus_action": {
+      "type": "string",
+      "title": "Weekly Focus Action"
+    },
+    "sort_order": {
+      "type": "number",
+      "title": "Sort Order"
+    }
+  },
+  "required": [
+    "draft_id",
+    "objective_name"
+  ]
+}

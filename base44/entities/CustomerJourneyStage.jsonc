@@ -1,0 +1,50 @@
+{
+  "name": "CustomerJourneyStage",
+  "type": "object",
+  "properties": {
+    "draft_id": {
+      "type": "string",
+      "title": "Draft ID"
+    },
+    "stage_name": {
+      "type": "string",
+      "title": "Stage Name"
+    },
+    "stage_description": {
+      "type": "string",
+      "title": "What Happens"
+    },
+    "supporting_channel": {
+      "type": "string",
+      "title": "Supporting Channel"
+    },
+    "customer_action": {
+      "type": "string",
+      "title": "Customer Action"
+    },
+    "business_action": {
+      "type": "string",
+      "title": "Business Action"
+    },
+    "owner": {
+      "type": "string",
+      "title": "Owner"
+    },
+    "dropoff_risk": {
+      "type": "string",
+      "title": "Drop-Off Risk"
+    },
+    "improvement_plan": {
+      "type": "string",
+      "title": "Improvement Plan"
+    },
+    "sort_order": {
+      "type": "number",
+      "title": "Sort Order"
+    }
+  },
+  "required": [
+    "draft_id",
+    "stage_name"
+  ]
+}

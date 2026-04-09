@@ -5,7 +5,15 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import Layout from './components/Layout';
+import Landing from './pages/Landing';
+import Dashboard from './pages/Dashboard';
+import Builder from './pages/Builder';
+import Journey from './pages/Journey';
+import Objectives from './pages/Objectives';
+import Results from './pages/Results';
+import PrintView from './pages/PrintView';
+import Admin from './pages/Admin';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -33,8 +41,17 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="/" element={<Landing />} />
+      <Route element={<Layout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/builder" element={<Builder />} />
+        <Route path="/journey" element={<Journey />} />
+        <Route path="/objectives" element={<Objectives />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/print" element={<PrintView />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Route>
     </Routes>
   );
 };
