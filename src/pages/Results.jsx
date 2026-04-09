@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { getCenterHubLabel, PRIORITY_COLORS, STATUS_COLORS } from "@/lib/constants";
-import { FileDown, Printer, Copy, Plus, Lock, ArrowRight } from "lucide-react";
+import { FileDown, Printer, Copy, Plus, Lock, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -10,6 +10,8 @@ import { useToast } from "@/components/ui/use-toast";
 import StrategySnapshot from "../components/results/StrategySnapshot";
 import AllocationChart from "../components/results/AllocationChart";
 import WeeklyActionPlan from "../components/results/WeeklyActionPlan";
+import AIAssistant from "../components/AIAssistant";
+import EmailResultsModal from "../components/EmailResultsModal";
 
 export default function Results() {
   const { toast } = useToast();
@@ -21,6 +23,7 @@ export default function Results() {
   const [objectives, setObjectives] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showEmailModal, setShowEmailModal] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -92,6 +95,9 @@ export default function Results() {
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={copySummary} className="gap-2">
             <Copy className="w-4 h-4" /> Copy Summary
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowEmailModal(true)} className="gap-2">
+            <Mail className="w-4 h-4" /> Email Results
           </Button>
           {isUnlocked ? (
             <>
@@ -228,6 +234,27 @@ export default function Results() {
           Traffic → Conversion → Follow-Up → Sales
         </p>
       </div>
+
+      {/* AI Assistant */}
+      <AIAssistant
+        business={business}
+        branches={branches}
+        stages={stages}
+        objectives={objectives}
+        draft={draft}
+      />
+
+      {/* Email Modal */}
+      {showEmailModal && (
+        <EmailResultsModal
+          business={business}
+          draft={draft}
+          branches={branches}
+          stages={stages}
+          objectives={objectives}
+          onClose={() => setShowEmailModal(false)}
+        />
+      )}
     </div>
   );
 }

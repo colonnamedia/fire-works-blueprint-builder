@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Save, Sparkles, Eye } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import AIAssistant from "../components/AIAssistant";
 
 const STEPS = [
   { id: "basics", label: "Business Basics" },
@@ -321,6 +322,15 @@ export default function Builder() {
           </div>
         </div>
       )}
+
+      {/* AI Assistant — available on all modes */}
+      <AIAssistant
+        business={business}
+        branches={branches}
+        stages={journeyStages}
+        objectives={[]}
+        draft={null}
+      />
     </div>
   );
 }
