@@ -14,15 +14,15 @@ export default function Dashboard() {
 
   useEffect(() => {
     Promise.all([
-      base44.auth.me(),
-      base44.entities.Business.list("-created_date", 50),
-      base44.entities.BlueprintDraft.list("-created_date", 50),
+      base44.auth.me().catch(() => null),
+      base44.entities.Business.list("-created_date", 50).catch(() => []),
+      base44.entities.BlueprintDraft.list("-created_date", 50).catch(() => []),
     ]).then(([u, b, d]) => {
       setUser(u);
       setBusinesses(b);
       setDrafts(d);
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   if (loading) {

@@ -31,9 +31,9 @@ export default function Results() {
     const businessId = params.get("businessId");
 
     Promise.all([
-      base44.auth.me(),
-      draftId ? base44.entities.BlueprintDraft.filter({ id: draftId }) : base44.entities.BlueprintDraft.list("-created_date", 1),
-      businessId ? base44.entities.Business.filter({ id: businessId }) : base44.entities.Business.list("-created_date", 1),
+      base44.auth.me().catch(() => null),
+      draftId ? base44.entities.BlueprintDraft.filter({ id: draftId }).catch(() => []) : base44.entities.BlueprintDraft.list("-created_date", 1).catch(() => []),
+      businessId ? base44.entities.Business.filter({ id: businessId }).catch(() => []) : base44.entities.Business.list("-created_date", 1).catch(() => []),
     ]).then(async ([u, dArr, bArr]) => {
       setUser(u);
       const d = dArr[0];
@@ -43,16 +43,16 @@ export default function Results() {
 
       if (d) {
         const [br, st, ob] = await Promise.all([
-          base44.entities.BlueprintBranch.filter({ draft_id: d.id }, "sort_order"),
-          base44.entities.CustomerJourneyStage.filter({ draft_id: d.id }, "sort_order"),
-          base44.entities.Objective.filter({ draft_id: d.id }, "sort_order"),
+          base44.entities.BlueprintBranch.filter({ draft_id: d.id }, "sort_order").catch(() => []),
+          base44.entities.CustomerJourneyStage.filter({ draft_id: d.id }, "sort_order").catch(() => []),
+          base44.entities.Objective.filter({ draft_id: d.id }, "sort_order").catch(() => []),
         ]);
         setBranches(br);
         setStages(st);
         setObjectives(ob);
       }
       setLoading(false);
-    });
+    }).catch(() => setLoading(false));
   }, []);
 
   const isAdmin = user?.role === "admin";
