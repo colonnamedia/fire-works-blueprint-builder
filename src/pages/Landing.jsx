@@ -77,9 +77,7 @@ export default function Landing() {
           </motion.h1>
 
           <motion.p {...fadeUp(0.2)} className="text-lg md:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Map your customer journey, marketing channels, time, cost, and weekly actions
-            into <strong className="text-gray-700">one clear visual system.</strong>
-            <br />Turn random marketing ideas into a structured plan.
+            Map your customer journey and <strong className="text-gray-700">find the broken link in your chain</strong> — so you can fix what's stopping people from reaching your business and turn more of them into paying customers.
           </motion.p>
 
           <motion.div {...fadeUp(0.3)} className="flex flex-col sm:flex-row gap-4 justify-center">
