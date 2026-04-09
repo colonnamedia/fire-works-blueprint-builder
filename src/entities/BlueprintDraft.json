@@ -1,0 +1,24 @@
+{
+  "name": "BlueprintDraft",
+  "type": "object",
+  "properties": {
+    "business_id": { "type": "string", "title": "Business ID" },
+    "draft_name": { "type": "string", "title": "Draft Name" },
+    "center_hub_label": { "type": "string", "title": "Center Hub Label" },
+    "center_hub_override": { "type": "string", "title": "Center Hub Override" },
+    "strategy_style": { "type": "string", "enum": ["simple", "moderate", "aggressive"], "title": "Strategy Style" },
+    "monthly_budget": { "type": "number", "title": "Monthly Budget" },
+    "weekly_time_available": { "type": "number", "title": "Weekly Time Available" },
+    "testing_period_days": { "type": "number", "title": "Testing Period Days" },
+    "review_frequency": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"], "title": "Review Frequency" },
+    "max_variables_to_adjust": { "type": "number", "title": "Max Variables to Adjust" },
+    "key_metrics_to_watch": { "type": "string", "title": "Key Metrics to Watch" },
+    "weekly_notes": { "type": "string", "title": "Weekly Notes" },
+    "status": { "type": "string", "enum": ["draft", "generated", "exported"], "title": "Status" },
+    "payment_status": { "type": "string", "enum": ["unpaid", "paid", "admin_free"], "title": "Payment Status" },
+    "export_count": { "type": "number", "title": "Export Count" },
+    "pdf_url": { "type": "string", "title": "PDF URL" },
+    "auto_email_sent": { "type": "boolean", "title": "Auto Email Sent" }
+  },
+  "required": ["business_id", "draft_name"]
+}

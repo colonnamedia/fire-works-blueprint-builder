@@ -12,6 +12,7 @@ import AllocationChart from "../components/results/AllocationChart";
 import WeeklyActionPlan from "../components/results/WeeklyActionPlan";
 import AIAssistant from "../components/AIAssistant";
 import EmailResultsModal from "../components/EmailResultsModal";
+import { sendBlueprintEmail, sendAdminNotification } from "@/lib/blueprintEmail";
 
 export default function Results() {
   const { toast } = useToast();
@@ -50,6 +51,20 @@ export default function Results() {
         setBranches(br);
         setStages(st);
         setObjectives(ob);
+
+        // Auto-send email if paid and not yet sent
+        if (
+          (d.payment_status === "paid" || d.payment_status === "admin_free") &&
+          !d.auto_email_sent &&
+          b &&
+          u?.email
+        ) {
+          sendBlueprintEmail({ toEmail: u.email, business: b, draft: d, branches: br, stages: st }).catch(() => {});
+          if (d.payment_status === "paid") {
+            sendAdminNotification({ business: b, draft: d, clientEmail: u.email }).catch(() => {});
+          }
+          base44.entities.BlueprintDraft.update(d.id, { auto_email_sent: true }).catch(() => {});
+        }
       }
       setLoading(false);
     }).catch(() => setLoading(false));
