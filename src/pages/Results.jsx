@@ -71,7 +71,8 @@ export default function Results() {
   }, []);
 
   const isAdmin = user?.role === "admin";
-  const isUnlocked = isAdmin || draft?.payment_status === "paid" || draft?.payment_status === "admin_free";
+  // Payment processing not yet set up — everything is free for now
+  const isUnlocked = true;
 
   const copySummary = () => {
     if (!business || !draft) return;

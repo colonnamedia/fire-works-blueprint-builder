@@ -20,13 +20,17 @@ export default function EmailResultsModal({ business, draft, branches, stages, o
   const handleSend = async () => {
     if (!email) return;
     setSending(true);
-    await sendBlueprintEmail({ toEmail: email, business, draft, branches, stages });
-    if (draft?.payment_status === "paid") {
-      await sendAdminNotification({ business, draft, clientEmail: email });
+    try {
+      await sendBlueprintEmail({ toEmail: email, business, draft, branches, stages });
+      if (draft?.payment_status === "paid") {
+        await sendAdminNotification({ business, draft, clientEmail: email }).catch(() => {});
+      }
+      setSent(true);
+      toast({ title: "Blueprint sent!", description: `Results emailed to ${email}` });
+    } catch (err) {
+      toast({ title: "Send failed", description: "Could not send the email. Please try again.", variant: "destructive" });
     }
     setSending(false);
-    setSent(true);
-    toast({ title: "Blueprint sent!", description: `Results emailed to ${email}` });
   };
 
   return (
