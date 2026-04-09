@@ -12,6 +12,9 @@ import AllocationChart from "../components/results/AllocationChart";
 import WeeklyActionPlan from "../components/results/WeeklyActionPlan";
 import AIAssistant from "../components/AIAssistant";
 import EmailResultsModal from "../components/EmailResultsModal";
+import MarketingSpider from "../components/results/MarketingSpider";
+import MarketingFunnel from "../components/results/MarketingFunnel";
+import PrioritySchedule from "../components/results/PrioritySchedule";
 import { sendBlueprintEmail, sendAdminNotification } from "@/lib/blueprintEmail";
 
 export default function Results() {
@@ -118,10 +121,7 @@ export default function Results() {
           {isUnlocked ? (
             <>
               <Button variant="outline" size="sm" onClick={() => navigate("/print" + window.location.search)} className="gap-2">
-                <Printer className="w-4 h-4" /> Print View
-              </Button>
-              <Button size="sm" onClick={() => window.print()} className="gap-2">
-                <FileDown className="w-4 h-4" /> Download PDF
+                <Printer className="w-4 h-4" /> Print / Save PDF
               </Button>
             </>
           ) : (
@@ -234,6 +234,15 @@ export default function Results() {
           </div>
         </div>
       )}
+
+      {/* Marketing Spider */}
+      <MarketingSpider branches={branches} objectives={objectives} />
+
+      {/* Marketing Funnel */}
+      <MarketingFunnel stages={stages} branches={branches} />
+
+      {/* Priority Schedule */}
+      <PrioritySchedule branches={branches} />
 
       {/* Weekly Action Plan */}
       <WeeklyActionPlan draft={draft} branches={branches} />

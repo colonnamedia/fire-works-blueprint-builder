@@ -48,8 +48,8 @@ export default function PrintView() {
     return <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-muted border-t-primary rounded-full animate-spin" /></div>;
   }
 
-  const isAdmin = user?.role === "admin";
-  const isUnlocked = isAdmin || draft?.payment_status === "paid" || draft?.payment_status === "admin_free";
+  // Free for now — payment not yet configured
+  const isUnlocked = true;
 
   if (!isUnlocked) {
     return (
