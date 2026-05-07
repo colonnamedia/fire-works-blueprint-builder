@@ -41,7 +41,7 @@ export default function Landing() {
             <Link to="/dashboard">
               <Button variant="ghost" size="sm" className="text-gray-600">Dashboard</Button>
             </Link>
-            <Link to="/builder">
+            <Link to="/questionnaire">
               <Button size="sm" className="gap-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white border-0">
                 Start Free <ArrowRight className="w-4 h-4" />
               </Button>
@@ -81,7 +81,7 @@ export default function Landing() {
           </motion.p>
 
           <motion.div {...fadeUp(0.3)} className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/builder">
+            <Link to="/questionnaire"">
               <Button size="lg" className="gap-2 px-8 text-base bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white border-0 shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40 transition-all">
                 Start Your Blueprint <ArrowRight className="w-5 h-5" />
               </Button>
@@ -297,7 +297,7 @@ export default function Landing() {
                 <PricingFeature text="Weekly action plan" />
               </div>
 
-              <Link to="/builder" className="block">
+              <Link to="/questionnaire"" className="block">
                 <Button
                   className="w-full gap-2 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white border-0 shadow-lg shadow-violet-500/25 py-6 text-base rounded-xl"
                   size="lg"
@@ -326,7 +326,7 @@ export default function Landing() {
             <p className="text-gray-400 text-sm text-center">
               Build a simple marketing home base for your business.
             </p>
-            <Link to="/builder">
+            <Link to="/questionnaire"">
               <Button size="sm" className="bg-gradient-to-r from-violet-600 to-blue-600 text-white border-0">
                 Get Started
               </Button>
