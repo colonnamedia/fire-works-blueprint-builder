@@ -1,89 +1,266 @@
-import pkg from 'pg';
-const { Pool } = pkg;
-
-const pool = new Pool({
-  connectionString: process.env.NEON_DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
+  const { blueprint, email } = req.body;
   const {
-    email, business_name, what_you_do, ideal_customer, main_goal,
-    has_website, current_marketing, monthly_budget, who_does_marketing,
-    biggest_challenge, years_in_business, success_in_90_days
-  } = req.body;
+    business_name, what_you_do, main_goal, biggest_challenge,
+    success_in_90_days, monthly_budget, years_in_business,
+    who_does_marketing, roadmap
+  } = blueprint;
 
-  // Generate roadmap with Groq
-  const prompt = `You are a marketing strategist. Based on the following business information, create a detailed 3-phase marketing roadmap.
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body { font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 32px 20px; color: #1a1a1a; background: #f9fafb; }
+  .header { background: linear-gradient(135deg, #534AB7, #185FA5); padding: 40px; border-radius: 12px; color: white; margin-bottom: 24px; }
+  .header h1 { margin: 0 0 6px; font-size: 26px; }
+  .header p { margin: 0; opacity: 0.8; font-size: 14px; }
+  .section { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #e5e7eb; }
+  .section h2 { margin: 0 0 16px; font-size: 17px; color: #111; }
+  .snapshot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .snapshot-item { background: #f9fafb; border-radius: 8px; padding: 12px; }
+  .snapshot-item label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #9ca3af; display: block; margin-bottom: 4px; }
+  .snapshot-item p { margin: 0; font-size: 13px; font-weight: 500; color: #111; }
+  .hub-container { text-align: center; padding: 8px 0; }
+  .funnel { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 8px 0; }
+  .funnel-step { background: #f3f4f6; border-radius: 8px; padding: 12px 16px; text-align: center; flex: 1; min-width: 100px; }
+  .funnel-step.blue { background: #E6F1FB; }
+  .funnel-step.purple { background: #EEEDFE; }
+  .funnel-step.teal { background: #E1F5EE; }
+  .funnel-step.green { background: #EAF3DE; }
+  .funnel-step p { margin: 0; font-size: 13px; font-weight: 500; }
+  .funnel-step span { font-size: 11px; color: #6b7280; }
+  .funnel-arrow { font-size: 18px; color: #9ca3af; flex-shrink: 0; }
+  .timeline { display: flex; gap: 0; position: relative; margin: 8px 0; }
+  .timeline-phase { flex: 1; text-align: center; padding: 0 8px; }
+  .timeline-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; color: white; font-weight: 500; font-size: 14px; }
+  .timeline-label { font-size: 11px; font-weight: 500; margin: 0 0 2px; }
+  .timeline-sub { font-size: 10px; color: #6b7280; margin: 0 0 8px; }
+  .timeline-items { font-size: 10px; color: #6b7280; line-height: 1.7; }
+  .priority-list { display: flex; flex-direction: column; gap: 8px; }
+  .priority-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
+  .priority-num { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 500; flex-shrink: 0; }
+  .priority-info { flex: 1; }
+  .priority-info strong { font-size: 13px; display: block; }
+  .priority-info span { font-size: 11px; color: #6b7280; }
+  .priority-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+  .phase-card { border-radius: 10px; padding: 20px; margin-bottom: 14px; border: 1px solid #e5e7eb; }
+  .phase-card.p1 { border-left: 4px solid #534AB7; }
+  .phase-card.p2 { border-left: 4px solid #185FA5; }
+  .phase-card.p3 { border-left: 4px solid #0F6E56; }
+  .phase-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .phase-header h3 { margin: 0; font-size: 16px; }
+  .phase-badge { font-size: 11px; padding: 3px 10px; border-radius: 4px; }
+  .phase-focus { font-size: 13px; color: #6b7280; margin: 0 0 12px; }
+  .phase-actions { list-style: none; padding: 0; margin: 0; }
+  .phase-actions li { display: flex; align-items: flex-start; gap: 10px; padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 13px; }
+  .phase-actions li:last-child { border-bottom: none; }
+  .action-num { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 500; flex-shrink: 0; margin-top: 1px; }
+  .footer { text-align: center; margin-top: 32px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #9ca3af; font-size: 12px; }
+</style>
+</head>
+<body>
 
-Business: ${business_name}
-What they do: ${what_you_do}
-Ideal customer: ${ideal_customer}
-Main goal: ${main_goal}
-Has website: ${has_website}
-Current marketing: ${current_marketing?.join(', ') || 'None'}
-Monthly budget: ${monthly_budget}
-Who does marketing: ${who_does_marketing}
-Biggest challenge: ${biggest_challenge}
-Years in business: ${years_in_business}
-Success in 90 days: ${success_in_90_days}
+<div class="header">
+  <h1>Your 90-Day Marketing Blueprint</h1>
+  <p>${business_name} · Generated by Fire-Works Blueprint Builder</p>
+</div>
 
-Return ONLY a JSON object with this exact structure, no other text:
-{
-  "phase1": {
-    "title": "Phase 1: Foundation",
-    "timeframe": "Days 1-30",
-    "focus": "one sentence describing the focus",
-    "actions": ["action 1", "action 2", "action 3", "action 4", "action 5"]
-  },
-  "phase2": {
-    "title": "Phase 2: Growth",
-    "timeframe": "Days 31-60",
-    "focus": "one sentence describing the focus",
-    "actions": ["action 1", "action 2", "action 3", "action 4", "action 5"]
-  },
-  "phase3": {
-    "title": "Phase 3: Scale",
-    "timeframe": "Days 61-90",
-    "focus": "one sentence describing the focus",
-    "actions": ["action 1", "action 2", "action 3", "action 4", "action 5"]
-  }
-}`;
+<div class="section">
+  <h2>Business snapshot</h2>
+  <div class="snapshot-grid">
+    <div class="snapshot-item"><label>Business</label><p>${business_name}</p></div>
+    <div class="snapshot-item"><label>What you do</label><p>${what_you_do}</p></div>
+    <div class="snapshot-item"><label>Main goal</label><p>${main_goal}</p></div>
+    <div class="snapshot-item"><label>Biggest challenge</label><p>${biggest_challenge}</p></div>
+    <div class="snapshot-item"><label>Monthly budget</label><p>${monthly_budget}</p></div>
+    <div class="snapshot-item"><label>90-day success</label><p>${success_in_90_days}</p></div>
+  </div>
+</div>
 
-  const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+<div class="section">
+  <h2>Your marketing home base</h2>
+  <div class="hub-container">
+    <table cellpadding="0" cellspacing="0" style="margin:0 auto; text-align:center;">
+      <tr>
+        <td style="padding:8px; width:130px;"><div style="background:#E1F5EE; border:1px solid #5DCAA5; border-radius:8px; padding:10px; font-size:11px; color:#085041;"><strong style="display:block; margin-bottom:2px;">Google Business</strong>Profile + Reviews</div></td>
+        <td style="padding:8px; width:130px;"><div style="background:#E6F1FB; border:1px solid #85B7EB; border-radius:8px; padding:10px; font-size:11px; color:#0C447C;"><strong style="display:block; margin-bottom:2px;">SEO / Search</strong>Organic traffic</div></td>
+        <td style="padding:8px; width:130px;"><div style="background:#FAEEDA; border:1px solid #EF9F27; border-radius:8px; padding:10px; font-size:11px; color:#633806;"><strong style="display:block; margin-bottom:2px;">Google Ads</strong>Paid search</div></td>
+      </tr>
+      <tr>
+        <td style="padding:8px;"><div style="background:#F1EFE8; border:1px solid #B4B2A9; border-radius:8px; padding:10px; font-size:11px; color:#2C2C2A;"><strong style="display:block; margin-bottom:2px;">Sales / CRM</strong>Follow-up system</div></td>
+        <td style="padding:8px;">
+          <div style="background:#534AB7; border-radius:50%; width:90px; height:90px; display:flex; align-items:center; justify-content:center; margin:0 auto; flex-direction:column;">
+            <span style="color:#EEEDFE; font-size:12px; font-weight:500; text-align:center; line-height:1.3;">Website /<br>Storefront</span>
+          </div>
+        </td>
+        <td style="padding:8px;"><div style="background:#FBEAF0; border:1px solid #ED93B1; border-radius:8px; padding:10px; font-size:11px; color:#4B1528;"><strong style="display:block; margin-bottom:2px;">Meta Ads</strong>Paid social</div></td>
+      </tr>
+      <tr>
+        <td style="padding:8px;"><div style="background:#EAF3DE; border:1px solid #97C459; border-radius:8px; padding:10px; font-size:11px; color:#173404;"><strong style="display:block; margin-bottom:2px;">Referrals</strong>Word of mouth</div></td>
+        <td style="padding:8px;"><div style="background:#EEEDFE; border:1px solid #AFA9EC; border-radius:8px; padding:10px; font-size:11px; color:#26215C;"><strong style="display:block; margin-bottom:2px;">Email / SMS</strong>Follow-up system</div></td>
+        <td style="padding:8px;"><div style="background:#FBEAF0; border:1px solid #ED93B1; border-radius:8px; padding:10px; font-size:11px; color:#4B1528;"><strong style="display:block; margin-bottom:2px;">Organic Social</strong>Facebook / Instagram</div></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Marketing funnel</h2>
+  <div class="funnel">
+    <div class="funnel-step blue"><p>🚗 Traffic</p><span>SEO · Ads · Social</span></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-step purple"><p>🎯 Conversion</p><span>Website · Forms</span></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-step teal"><p>📧 Follow-Up</p><span>Email · SMS · CRM</span></div>
+    <div class="funnel-arrow">→</div>
+    <div class="funnel-step green"><p>💰 Sales</p><span>Revenue · Referrals</span></div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>90-day timeline</h2>
+  <div class="timeline">
+    <div class="timeline-phase">
+      <div class="timeline-dot" style="background:#534AB7;">1</div>
+      <p class="timeline-label" style="color:#534AB7;">Days 1–30</p>
+      <p class="timeline-sub">Foundation</p>
+      <div class="timeline-items">Website<br>Google Profile<br>Reviews<br>Facebook page<br>NAP consistency</div>
+    </div>
+    <div class="timeline-phase">
+      <div class="timeline-dot" style="background:#185FA5;">2</div>
+      <p class="timeline-label" style="color:#185FA5;">Days 31–60</p>
+      <p class="timeline-sub">Growth</p>
+      <div class="timeline-items">Organic posts<br>Google Local Ads<br>Local SEO pages<br>Follow-up texts<br>Customer list</div>
+    </div>
+    <div class="timeline-phase">
+      <div class="timeline-dot" style="background:#0F6E56;">3</div>
+      <p class="timeline-label" style="color:#0F6E56;">Days 61–90</p>
+      <p class="timeline-sub">Scale</p>
+      <div class="timeline-items">Optimize ads<br>Meta retargeting<br>Email sequences<br>CRM setup<br>Test + repeat</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Priority order — what to do first</h2>
+  <div class="priority-list">
+    <div class="priority-item">
+      <div class="priority-num" style="background:#534AB7;">1</div>
+      <div class="priority-info"><strong>Website or digital storefront</strong><span>Your home base — everything points here</span></div>
+      <span class="priority-badge" style="background:#EEEDFE; color:#3C3489;">Do first</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#534AB7;">2</div>
+      <div class="priority-info"><strong>Google Business Profile</strong><span>Free, high-impact, local visibility</span></div>
+      <span class="priority-badge" style="background:#EEEDFE; color:#3C3489;">Do first</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#185FA5;">3</div>
+      <div class="priority-info"><strong>Google reviews + social profiles</strong><span>Social proof before spending on ads</span></div>
+      <span class="priority-badge" style="background:#E6F1FB; color:#185FA5;">Week 2–3</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#185FA5;">4</div>
+      <div class="priority-info"><strong>Organic social media posting</strong><span>Build audience before paying for reach</span></div>
+      <span class="priority-badge" style="background:#E6F1FB; color:#185FA5;">Month 2</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#185FA5;">5</div>
+      <div class="priority-info"><strong>Google Ads (Local Services)</strong><span>Paid leads — only after foundation is solid</span></div>
+      <span class="priority-badge" style="background:#E6F1FB; color:#185FA5;">Month 2</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#0F6E56;">6</div>
+      <div class="priority-info"><strong>Email / SMS follow-up system</strong><span>Retain customers and generate referrals</span></div>
+      <span class="priority-badge" style="background:#E1F5EE; color:#085041;">Month 2–3</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#0F6E56;">7</div>
+      <div class="priority-info"><strong>Meta Ads (Facebook/Instagram)</strong><span>Retargeting and brand awareness</span></div>
+      <span class="priority-badge" style="background:#E1F5EE; color:#085041;">Month 3</span>
+    </div>
+    <div class="priority-item">
+      <div class="priority-num" style="background:#0F6E56;">8</div>
+      <div class="priority-info"><strong>CRM + sales automation</strong><span>Scale without adding more work</span></div>
+      <span class="priority-badge" style="background:#E1F5EE; color:#085041;">Month 3</span>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h2>Your 90-day action plan</h2>
+
+  <div class="phase-card p1">
+    <div class="phase-header">
+      <h3>${roadmap.phase1.title}</h3>
+      <span class="phase-badge" style="background:#EEEDFE; color:#3C3489;">${roadmap.phase1.timeframe}</span>
+    </div>
+    <p class="phase-focus">${roadmap.phase1.focus}</p>
+    <ul class="phase-actions">
+      ${roadmap.phase1.actions.map((a, i) => `<li><div class="action-num" style="background:#534AB7;">${i+1}</div>${a}</li>`).join('')}
+    </ul>
+  </div>
+
+  <div class="phase-card p2">
+    <div class="phase-header">
+      <h3>${roadmap.phase2.title}</h3>
+      <span class="phase-badge" style="background:#E6F1FB; color:#0C447C;">${roadmap.phase2.timeframe}</span>
+    </div>
+    <p class="phase-focus">${roadmap.phase2.focus}</p>
+    <ul class="phase-actions">
+      ${roadmap.phase2.actions.map((a, i) => `<li><div class="action-num" style="background:#185FA5;">${i+1}</div>${a}</li>`).join('')}
+    </ul>
+  </div>
+
+  <div class="phase-card p3">
+    <div class="phase-header">
+      <h3>${roadmap.phase3.title}</h3>
+      <span class="phase-badge" style="background:#E1F5EE; color:#085041;">${roadmap.phase3.timeframe}</span>
+    </div>
+    <p class="phase-focus">${roadmap.phase3.focus}</p>
+    <ul class="phase-actions">
+      ${roadmap.phase3.actions.map((a, i) => `<li><div class="action-num" style="background:#0F6E56;">${i+1}</div>${a}</li>`).join('')}
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  <p style="font-weight:500; color:#534AB7; margin:0 0 4px;">Traffic → Conversion → Follow-Up → Sales</p>
+  <p style="margin:0;">Generated by Fire-Works Blueprint Builder · A Kelowna Media tool</p>
+  <p style="margin:4px 0 0;">Questions? colonnamedia@gmail.com</p>
+</div>
+
+</body>
+</html>`;
+
+  await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.GROQ_API_KEY}`
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`
     },
     body: JSON.stringify({
-      model: 'llama3-8b-8192',
-      messages: [{ role: 'user', content: prompt }],
-      temperature: 0.7,
-      max_tokens: 1500
+      from: 'Fire-Works Blueprint <onboarding@resend.dev>',
+      to: email,
+      subject: `Your 90-Day Marketing Blueprint — ${business_name}`,
+      html
     })
   });
 
-  const groqData = await groqRes.json();
-  const rawText = groqData.choices[0].message.content;
-  const roadmap = JSON.parse(rawText.replace(/```json|```/g, '').trim());
-
-  // Save to Neon
-  const result = await pool.query(
-    `INSERT INTO blueprints (
-      email, business_name, what_you_do, ideal_customer, main_goal,
-      has_website, current_marketing, monthly_budget, who_does_marketing,
-      biggest_challenge, years_in_business, success_in_90_days, roadmap
-    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
-    [
-      email, business_name, what_you_do, ideal_customer, main_goal,
-      has_website, current_marketing, monthly_budget, who_does_marketing,
-      biggest_challenge, years_in_business, success_in_90_days,
-      JSON.stringify(roadmap)
-    ]
+  const { Pool } = await import('pg');
+  const pool = new Pool({
+    connectionString: process.env.NEON_DATABASE_URL,
+    ssl: { rejectUnauthorized: false }
+  });
+  await pool.query(
+    `UPDATE blueprints SET email_sent = true WHERE id = $1`,
+    [blueprint.id]
   );
 
-  return res.status(200).json({ id: result.rows[0].id, roadmap });
+  return res.status(200).json({ success: true });
 }
