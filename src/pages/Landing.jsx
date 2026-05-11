@@ -223,7 +223,7 @@ export default function Landing() {
               <span className="font-bold text-white text-lg">Marketing Blueprint Builder</span>
             </div>
             <p className="text-gray-400 text-sm text-center">
-              A Fire-Works tool by Kelowna Media
+              A Fire-Works tool by Colonna Media
             </p>
             <Link to="/questionnaire">
               <Button size="sm" className="bg-gradient-to-r from-violet-600 to-blue-600 text-white border-0">
