@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, LayoutGrid, CheckCircle, Target, Mail, Globe, Zap, Clock, ChevronRight } from "lucide-react";
+import { ArrowRight, LayoutGrid, CheckCircle, Target, Mail, Globe, Zap, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const fadeUp = (delay = 0) => ({
@@ -24,7 +24,7 @@ const products = [
     title: "Business Blueprint",
     subtitle: "Build / Rebuild",
     question: "What should I work on first?",
-    desc: "Get your personalized 90-day marketing roadmap. Know exactly what to build, what to fix, and in what order — based on your business type, industry, and goals.",
+    desc: "Your complete 90-day marketing roadmap. Know exactly what to build, fix, and prioritize — based on your business type.",
     price: "$19.99",
     cta: "Build My Blueprint",
     href: "/questionnaire",
@@ -33,8 +33,8 @@ const products = [
     available: true,
     includes: [
       "Priority order — what to do first, second, third",
-      "Hub & spoke marketing diagram for your business",
-      "90-day phase plan with SEO and content notes",
+      "Hub & spoke marketing diagram",
+      "90-day phase plan with SEO notes",
       "Week-by-week action timeline",
       "Business-type specific recommendations",
     ],
@@ -46,7 +46,7 @@ const products = [
     title: "Advertising Blueprint",
     subtitle: "Google · Meta · Retargeting",
     question: "Where should I advertise and what should I spend?",
-    desc: "Know exactly which platform is right for your business, how to allocate your budget, and how to set up retargeting that turns browsers into buyers.",
+    desc: "Know exactly which ad platform fits your business, how to allocate your budget, and how retargeting turns browsers into buyers.",
     price: "$14.99",
     cta: "Get My Ad Strategy",
     href: "/advertising",
@@ -54,21 +54,21 @@ const products = [
     border: "border-blue-200",
     available: true,
     includes: [
-      "Google vs Meta — which platform is right for you",
-      "Retargeting sequence with step-by-step examples",
-      "Budget allocation based on your spend level",
+      "Google vs Meta — which is right for you",
+      "Retargeting sequence with real examples",
+      "Budget allocation by spend level",
       "Ad type and creative recommendations",
       "Competitor strategy if applicable",
     ],
   },
- {
+  {
     icon: Globe,
     tag: "Available Now",
     tagColor: "bg-teal-100 text-teal-700",
     title: "Website Blueprint",
     subtitle: "Structure · Pages · Conversion",
     question: "What should my website actually have?",
-    desc: "Get a page-by-page website plan based on your industry and what you're selling. Stop guessing what goes where — build a site that converts.",
+    desc: "A page-by-page website plan built for your industry. Stop guessing what goes where — build a site that converts visitors into customers.",
     price: "$9.99",
     cta: "Get My Website Blueprint",
     href: "/website-blueprint",
@@ -76,11 +76,11 @@ const products = [
     border: "border-teal-200",
     available: true,
     includes: [
-      "Page-by-page site structure for your business type",
+      "Page-by-page structure for your business type",
       "What to put above the fold on your homepage",
       "Service/product page recommendations",
       "Lead capture and CTA placement guide",
-      "Mobile experience priorities",
+      "AI-personalized headline suggestion",
     ],
   },
   {
@@ -90,7 +90,7 @@ const products = [
     title: "Automations Blueprint",
     subtitle: "Email · SMS · Follow-Up",
     question: "How do I follow up without doing it manually?",
-    desc: "Get a complete automation plan — welcome sequences, lead follow-up, post-purchase flows, review requests, and re-engagement campaigns.",
+    desc: "A complete automation plan — welcome sequences, lead follow-up, post-purchase flows, review requests, and re-engagement campaigns.",
     price: "Coming Soon",
     cta: null,
     href: null,
@@ -131,7 +131,10 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-2">
             <Link to="/advertising">
-              <Button variant="ghost" size="sm" className="text-gray-600 hidden sm:flex">Ad Strategy</Button>
+              <Button variant="ghost" size="sm" className="text-gray-600 hidden sm:flex text-xs">Ad Strategy</Button>
+            </Link>
+            <Link to="/website-blueprint">
+              <Button variant="ghost" size="sm" className="text-gray-600 hidden sm:flex text-xs">Website Blueprint</Button>
             </Link>
             <Link to="/questionnaire">
               <Button size="sm" className="gap-1.5 bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white border-0 text-xs sm:text-sm">
@@ -143,54 +146,74 @@ export default function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative pt-20 pb-16 px-4 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+      <section className="relative pt-16 pb-8 px-4 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute top-0 left-1/3 w-96 h-96 bg-violet-100 rounded-full blur-3xl opacity-40 -translate-y-1/2" />
           <div className="absolute top-20 right-1/4 w-72 h-72 bg-blue-100 rounded-full blur-3xl opacity-30" />
         </div>
 
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <motion.div {...fadeUp(0)} className="inline-flex items-center gap-2 bg-white border border-violet-200 text-violet-700 px-4 py-2 rounded-full text-xs font-medium mb-8 shadow-sm">
-            <Zap className="w-3.5 h-3.5" />
-            AI-powered · Personalized to your business · Delivered instantly
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <motion.div {...fadeUp(0)} className="inline-flex items-center gap-2 bg-white border border-violet-200 text-violet-700 px-4 py-2 rounded-full text-xs font-medium mb-6 shadow-sm">
+              <Zap className="w-3.5 h-3.5" />
+              AI-powered · Personalized to your business · Delivered instantly
+            </motion.div>
+
+            <motion.h1 {...fadeUp(0.1)} className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-4 text-gray-900">
+              Build It Right.{" "}
+              <span className="bg-gradient-to-r from-violet-600 via-blue-600 to-teal-500 bg-clip-text text-transparent">
+                Then Grow It.
+              </span>
+            </motion.h1>
+
+            <motion.p {...fadeUp(0.15)} className="text-lg text-gray-500 max-w-2xl mx-auto mb-3 leading-relaxed">
+              Practical, personalized blueprints for building a better business online.
+            </motion.p>
+
+            <motion.p {...fadeUp(0.2)} className="text-base text-gray-700 max-w-2xl mx-auto mb-8 leading-relaxed">
+              Start with your complete marketing roadmap — or choose a blueprint for the specific part of your business you want to improve.
+            </motion.p>
+
+            <motion.p {...fadeUp(0.25)} className="text-xs text-gray-400 mb-10">
+              One-time payment · No subscription · PDF emailed instantly
+            </motion.p>
+          </div>
+
+          {/* Hero product cards — all 4 */}
+          <motion.div {...fadeUp(0.3)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {products.map((p, i) => (
+              <div key={i} className={`rounded-2xl border ${p.border} overflow-hidden bg-white shadow-sm ${p.available ? "hover:shadow-md transition-shadow" : "opacity-60"}`}>
+                <div className={`bg-gradient-to-br ${p.gradient} p-4 text-white`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <p.icon className="w-5 h-5" />
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${p.tagColor}`}>{p.tag}</span>
+                  </div>
+                  <p className="font-bold text-sm mb-0.5">{p.title}</p>
+                  <p className="text-xs opacity-70">{p.subtitle}</p>
+                </div>
+                <div className="p-4">
+                  <p className="text-xs text-gray-500 leading-relaxed mb-4 min-h-[48px]">{p.desc}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-base font-bold text-gray-900">{p.price}</span>
+                    {p.available && p.href ? (
+                      <Link to={p.href}>
+                        <button className={`text-xs font-medium px-3 py-1.5 rounded-lg bg-gradient-to-r ${p.gradient} text-white`}>
+                          Start <ArrowRight className="w-3 h-3 inline ml-0.5" />
+                        </button>
+                      </Link>
+                    ) : (
+                      <span className="text-xs text-gray-400 flex items-center gap-1"><Clock className="w-3 h-3" /> Soon</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </motion.div>
-
-          <motion.h1 {...fadeUp(0.1)} className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6 text-gray-900">
-            Build It Right.{" "}
-            <span className="bg-gradient-to-r from-violet-600 via-blue-600 to-teal-500 bg-clip-text text-transparent">
-              Then Grow It.
-            </span>
-          </motion.h1>
-
-          <motion.p {...fadeUp(0.15)} className="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-4 leading-relaxed">
-            Practical, personalized blueprints for building a better business online.
-          </motion.p>
-
-          <motion.p {...fadeUp(0.2)} className="text-base text-gray-700 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Start with your complete business marketing roadmap — or choose a blueprint for the specific part of your business you want to improve.
-          </motion.p>
-
-          <motion.div {...fadeUp(0.25)} className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-            <Link to="/questionnaire">
-              <Button size="lg" className="gap-2 px-7 text-sm bg-gradient-to-r from-violet-600 to-blue-600 hover:from-violet-700 hover:to-blue-700 text-white border-0 shadow-lg shadow-violet-500/20 hover:shadow-violet-500/30 transition-all">
-                Build My Blueprint — $19.99 <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Link to="/advertising">
-              <Button size="lg" variant="outline" className="gap-2 px-7 text-sm border-blue-200 text-blue-700 hover:bg-blue-50">
-                Advertising Strategy — $14.99
-              </Button>
-            </Link>
-          </motion.div>
-
-          <motion.p {...fadeUp(0.3)} className="text-xs text-gray-400">
-            One-time payment · No subscription · PDF emailed instantly
-          </motion.p>
         </div>
       </section>
 
       {/* Ticker */}
-      <div className="py-5 bg-white border-y border-gray-100 overflow-hidden">
+      <div className="py-4 bg-white border-y border-gray-100 overflow-hidden">
         <div className="flex gap-3">
           <div className="flex gap-3 animate-[scroll_30s_linear_infinite] flex-shrink-0">
             {[...ticker, ...ticker].map((c, i) => (
@@ -211,17 +234,17 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-bold mb-4">Before you spend more on marketing, make sure your business is ready for it.</h2>
           <p className="text-gray-400 text-base max-w-3xl mx-auto leading-relaxed">
-            Your website, lead capture, customer follow-up, content, advertising, and retargeting should work together — and in the right order. Most businesses spend money driving traffic to a site or system that isn't ready to convert it. Answer a few questions and get a personalized plan showing you what to work on first, what comes next, and where your time and money will have the biggest impact.
+            Your website, lead capture, customer follow-up, content, advertising, and retargeting should work together — and in the right order. Most businesses spend money driving traffic to a site that isn't ready to convert it.
           </p>
         </div>
       </section>
 
-      {/* Product cards */}
+      {/* Full product detail cards */}
       <section className="py-20 px-4 bg-gradient-to-b from-white to-gray-50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">Choose your blueprint</h2>
-            <p className="text-gray-500 text-base max-w-2xl mx-auto">Each blueprint is a focused AI-powered guide for one area of your business. Start anywhere — but we recommend starting with the Business Blueprint so you know what order everything else should go in.</p>
+            <p className="text-gray-500 text-base max-w-2xl mx-auto">Each blueprint is a focused AI-powered guide. Start anywhere — but the Business Blueprint tells you what order everything else should go in.</p>
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
@@ -263,7 +286,7 @@ export default function Landing() {
                     <div className="w-full py-3 px-4 rounded-xl bg-gray-50 border border-gray-200 text-center">
                       <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
                         <Clock className="w-4 h-4" />
-                        <span>Coming Soon — Notify Me</span>
+                        <span>Coming Soon</span>
                       </div>
                     </div>
                   )}
@@ -300,7 +323,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* The problem */}
+      {/* Problem section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
@@ -309,7 +332,7 @@ export default function Landing() {
           </div>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="bg-red-50 border border-red-100 rounded-2xl p-6">
-              <p className="font-semibold text-red-700 mb-4 text-sm flex items-center gap-2">❌ What most businesses do</p>
+              <p className="font-semibold text-red-700 mb-4 text-sm">❌ What most businesses do</p>
               <ul className="space-y-3 text-sm text-red-600">
                 {["Start posting on every social platform at once", "Run ads before their website converts visitors", "Spend on trending content before owning Google search", "No follow-up system — leads disappear after first contact", "No strategy — just reacting to what feels popular"].map((t, i) => (
                   <li key={i} className="flex gap-2"><span className="opacity-60">→</span>{t}</li>
@@ -317,7 +340,7 @@ export default function Landing() {
               </ul>
             </div>
             <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6">
-              <p className="font-semibold text-emerald-700 mb-4 text-sm flex items-center gap-2">✓ What Fire-Works helps you do</p>
+              <p className="font-semibold text-emerald-700 mb-4 text-sm">✓ What Fire-Works helps you do</p>
               <ul className="space-y-3 text-sm text-emerald-700">
                 {["Build your website and Google presence first — where buyers search", "Set up follow-up systems before driving traffic", "Choose the right 2-3 platforms for your business type", "Run ads only after your foundation converts visitors", "Systematize everything so it runs without you"].map((t, i) => (
                   <li key={i} className="flex gap-2"><span className="opacity-60">→</span>{t}</li>
@@ -333,7 +356,7 @@ export default function Landing() {
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold mb-2">The more blueprints you build, the clearer your path becomes.</h2>
-            <p className="opacity-80 text-sm max-w-lg">Start with one. Build from there. Each guide gets more specific to your business and builds on what came before.</p>
+            <p className="opacity-80 text-sm max-w-lg">Start with one. Build from there. Each guide gets more specific and builds on what came before.</p>
           </div>
           <div className="flex flex-col gap-3 flex-shrink-0">
             <Link to="/questionnaire">
@@ -341,11 +364,18 @@ export default function Landing() {
                 Business Blueprint — $19.99 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Link to="/advertising">
-              <Button size="lg" variant="outline" className="gap-2 w-full border-white/40 text-white hover:bg-white/10 text-sm">
-                Advertising Strategy — $14.99
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to="/advertising" className="flex-1">
+                <Button size="sm" variant="outline" className="gap-1 w-full border-white/40 text-white hover:bg-white/10 text-xs">
+                  Advertising — $14.99
+                </Button>
+              </Link>
+              <Link to="/website-blueprint" className="flex-1">
+                <Button size="sm" variant="outline" className="gap-1 w-full border-white/40 text-white hover:bg-white/10 text-xs">
+                  Website — $9.99
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
