@@ -233,14 +233,14 @@ Return ONLY a valid JSON object with NO markdown, no backticks, no extra text:
         has_website, current_marketing, monthly_budget, who_does_marketing,
         biggest_challenge, years_in_business, success_in_90_days, roadmap
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
-      [
+     [
   email,
   business_name,
   what_you_do || '',
   ideal_customer || '',
   primary_goal || '',
   website_status || '',
-  Array.isArray(current_marketing) ? current_marketing : [],
+  Array.isArray(current_marketing) ? current_marketing : (current_marketing ? [current_marketing] : []),
   monthly_budget || '',
   team_size || '',
   challengeNote,
