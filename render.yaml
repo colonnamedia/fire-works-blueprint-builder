@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: fireworks-business-blueprint
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEON_DATABASE_URL
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_ADVERTISING_WEBHOOK_SECRET
+        sync: false
+      - key: STRIPE_WEBSITE_WEBHOOK_SECRET
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: APP_URL
+        sync: false
