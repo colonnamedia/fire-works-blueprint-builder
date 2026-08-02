@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --quiet",
@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "resend": "^3.2.0"
+    "resend": "^3.2.0",
     "pg": "^8.13.1",
     "stripe": "^17.7.0",
     "@hello-pangea/dnd": "^17.0.0",
