@@ -44,9 +44,9 @@ export default async function handler(req, res) {
       ? `Currently doing: ${current_marketing.join(', ')}`
       : 'Not currently doing any paid or organic marketing.';
 
-    const challengeNote = biggest_challenges?.length > 0
-      ? biggest_challenges.join(', ')
-      : 'No specific challenges identified.';
+   const challengeNote = biggest_challenges?.length > 0
+  ? (Array.isArray(biggest_challenges) ? biggest_challenges.join(', ') : biggest_challenges)
+  : 'No specific challenges identified.';
 
     const prompt = `You are an expert marketing strategist specializing in small and medium businesses. Generate a comprehensive, highly specific 90-day marketing blueprint for this business.
 
@@ -233,17 +233,17 @@ Return ONLY a valid JSON object with NO markdown, no backticks, no extra text:
         has_website, current_marketing, monthly_budget, who_does_marketing,
         biggest_challenge, years_in_business, success_in_90_days, roadmap
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
-     [
+    [
   email,
   business_name,
   what_you_do || '',
   ideal_customer || '',
   primary_goal || '',
   website_status || '',
-  Array.isArray(current_marketing) ? current_marketing : (current_marketing ? [current_marketing] : []),
+  Array.isArray(current_marketing) ? current_marketing : [],
   monthly_budget || '',
   team_size || '',
-  challengeNote,
+  Array.isArray(biggest_challenges) ? biggest_challenges.join(', ') : (biggest_challenges || ''),
   years_in_business || '',
   success_in_90_days || '',
   JSON.stringify(roadmap)
