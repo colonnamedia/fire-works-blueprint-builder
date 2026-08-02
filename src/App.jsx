@@ -5,6 +5,8 @@ import Questionnaire from './pages/Questionnaire';
 import Results from './pages/Results';
 import AdvertisingQuestionnaire from './pages/AdvertisingQuestionnaire';
 import AdvertisingResults from './pages/AdvertisingResults';
+import WebsiteQuestionnaire from './pages/WebsiteQuestionnaire';
+import WebsiteResults from './pages/WebsiteResults';
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
         <Route path="/results" element={<Results />} />
         <Route path="/advertising" element={<AdvertisingQuestionnaire />} />
         <Route path="/advertising-results" element={<AdvertisingResults />} />
+        <Route path="/website-blueprint" element={<WebsiteQuestionnaire />} />
+        <Route path="/website-results" element={<WebsiteResults />} />
       </Routes>
       <Toaster />
     </Router>
