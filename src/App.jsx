@@ -7,6 +7,13 @@ import AdvertisingQuestionnaire from './pages/AdvertisingQuestionnaire';
 import AdvertisingResults from './pages/AdvertisingResults';
 import WebsiteQuestionnaire from './pages/WebsiteQuestionnaire';
 import WebsiteResults from './pages/WebsiteResults';
+import AdminLogin from './pages/AdminLogin';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminClients from './pages/AdminClients';
+import AdminClientProfile from './pages/AdminClientProfile';
+import AdminAbandoned from './pages/AdminAbandoned';
+import AdminRevenue from './pages/AdminRevenue';
+import AdminSettings from './pages/AdminSettings';
 
 function App() {
   return (
@@ -19,6 +26,13 @@ function App() {
         <Route path="/advertising-results" element={<AdvertisingResults />} />
         <Route path="/website-blueprint" element={<WebsiteQuestionnaire />} />
         <Route path="/website-results" element={<WebsiteResults />} />
+        <Route path="/admin" element={<AdminLogin />} />
+<Route path="/admin/dashboard" element={<AdminDashboard />} />
+<Route path="/admin/clients" element={<AdminClients />} />
+<Route path="/admin/client/:product/:id" element={<AdminClientProfile />} />
+<Route path="/admin/abandoned" element={<AdminAbandoned />} />
+<Route path="/admin/revenue" element={<AdminRevenue />} />
+<Route path="/admin/settings" element={<AdminSettings />} />
       </Routes>
       <Toaster />
     </Router>
