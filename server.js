@@ -538,7 +538,185 @@ app.post('/api/send-email', async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 });
+// ─── ADMIN AUTH MIDDLEWARE ────────────────────────────────────────────
 
+function adminAuth(req, res, next) {
+  const token = req.headers['authorization']?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const decoded = jwt.verify(token, process.env.ADMIN_JWT_SECRET);
+    req.admin = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
+// POST /api/admin/create (one-time setup)
+app.post('/api/admin/create', async (req, res) => {
+  try {
+    const { email, password, setup_key } = req.body;
+    if (setup_key !== process.env.ADMIN_SETUP_KEY) return res.status(403).json({ error: 'Invalid setup key' });
+    const existing = await pool.query('SELECT id FROM admin_users');
+    if (existing.rows.length > 0) return res.status(403).json({ error: 'Admin already exists' });
+    const hash = await bcrypt.hash(password, 12);
+    await pool.query('INSERT INTO admin_users (email, password_hash) VALUES ($1, $2)', [email, hash]);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/login
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await pool.query('SELECT * FROM admin_users WHERE email = $1', [email]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+    const admin = result.rows[0];
+    const valid = await bcrypt.compare(password, admin.password_hash);
+    if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
+    if (admin.totp_enabled) {
+      const tempToken = jwt.sign({ id: admin.id, email: admin.email, requires2fa: true }, process.env.ADMIN_JWT_SECRET, { expiresIn: '5m' });
+      return res.status(200).json({ requires2fa: true, tempToken });
+    }
+    const token = jwt.sign({ id: admin.id, email: admin.email }, process.env.ADMIN_JWT_SECRET, { expiresIn: '24h' });
+    return res.status(200).json({ token, admin: { email: admin.email, totp_enabled: admin.totp_enabled } });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/verify-2fa
+app.post('/api/admin/verify-2fa', async (req, res) => {
+  try {
+    const { tempToken, code } = req.body;
+    let decoded;
+    try { decoded = jwt.verify(tempToken, process.env.ADMIN_JWT_SECRET); }
+    catch { return res.status(401).json({ error: 'Token expired' }); }
+    const result = await pool.query('SELECT * FROM admin_users WHERE id = $1', [decoded.id]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Not found' });
+    const admin = result.rows[0];
+    const valid = authenticator.verify({ token: code, secret: admin.totp_secret });
+    if (!valid) return res.status(401).json({ error: 'Invalid code' });
+    const token = jwt.sign({ id: admin.id, email: admin.email }, process.env.ADMIN_JWT_SECRET, { expiresIn: '24h' });
+    return res.status(200).json({ token, admin: { email: admin.email } });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/setup-2fa
+app.post('/api/admin/setup-2fa', adminAuth, async (req, res) => {
+  try {
+    const secret = authenticator.generateSecret();
+    const otpauth = authenticator.keyuri(req.admin.email, 'Fire-Works Blueprint', secret);
+    await pool.query('UPDATE admin_users SET totp_secret = $1 WHERE id = $2', [secret, req.admin.id]);
+    return res.status(200).json({ secret, otpauth });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/confirm-2fa
+app.post('/api/admin/confirm-2fa', adminAuth, async (req, res) => {
+  try {
+    const { code } = req.body;
+    const result = await pool.query('SELECT totp_secret FROM admin_users WHERE id = $1', [req.admin.id]);
+    const valid = authenticator.verify({ token: code, secret: result.rows[0].totp_secret });
+    if (!valid) return res.status(401).json({ error: 'Invalid code' });
+    await pool.query('UPDATE admin_users SET totp_enabled = true WHERE id = $1', [req.admin.id]);
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/analytics
+app.get('/api/admin/analytics', adminAuth, async (req, res) => {
+  try {
+    const [blueprints, advertising, website] = await Promise.all([
+      pool.query(`SELECT COUNT(*) total, COUNT(*) FILTER (WHERE payment_status='paid') paid, SUM(CASE WHEN payment_status='paid' THEN 1999 ELSE 0 END) revenue FROM blueprints`),
+      pool.query(`SELECT COUNT(*) total, COUNT(*) FILTER (WHERE payment_status='paid') paid, SUM(CASE WHEN payment_status='paid' THEN 1499 ELSE 0 END) revenue FROM advertising_strategies`),
+      pool.query(`SELECT COUNT(*) total, COUNT(*) FILTER (WHERE payment_status='paid') paid, SUM(CASE WHEN payment_status='paid' THEN 999 ELSE 0 END) revenue FROM website_blueprints`),
+    ]);
+    const dailyBlueprints = await pool.query(`SELECT DATE(created_at) date, COUNT(*) count FROM blueprints WHERE created_at > NOW() - INTERVAL '30 days' GROUP BY DATE(created_at) ORDER BY date ASC`);
+    const totalRevenue = (parseInt(blueprints.rows[0].revenue)||0) + (parseInt(advertising.rows[0].revenue)||0) + (parseInt(website.rows[0].revenue)||0);
+    const totalPaid = (parseInt(blueprints.rows[0].paid)||0) + (parseInt(advertising.rows[0].paid)||0) + (parseInt(website.rows[0].paid)||0);
+    const totalSubmissions = (parseInt(blueprints.rows[0].total)||0) + (parseInt(advertising.rows[0].total)||0) + (parseInt(website.rows[0].total)||0);
+    return res.status(200).json({
+      total_revenue: totalRevenue, total_paid: totalPaid, total_submissions: totalSubmissions,
+      conversion_rate: totalSubmissions > 0 ? ((totalPaid / totalSubmissions) * 100).toFixed(1) : 0,
+      products: { blueprint: blueprints.rows[0], advertising: advertising.rows[0], website: website.rows[0] },
+      daily_chart: dailyBlueprints.rows,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/clients
+app.get('/api/admin/clients', adminAuth, async (req, res) => {
+  try {
+    const { product, status, search, page = 1 } = req.query;
+    const limit = 25;
+    const offset = (page - 1) * limit;
+    const blueprintQ = `SELECT id, email, business_name, 'blueprint' as product, payment_status, created_at, 1999 as price FROM blueprints`;
+    const advQ = `SELECT id, email, business_name, 'advertising' as product, payment_status, created_at, 1499 as price FROM advertising_strategies`;
+    const webQ = `SELECT id, email, business_name, 'website' as product, payment_status, created_at, 999 as price FROM website_blueprints`;
+    let combined = `SELECT * FROM (${blueprintQ} UNION ALL ${advQ} UNION ALL ${webQ}) all_clients WHERE 1=1`;
+    const params = [];
+    let pIdx = 1;
+    if (product && product !== 'all') { combined += ` AND product = $${pIdx++}`; params.push(product); }
+    if (status && status !== 'all') { combined += ` AND payment_status = $${pIdx++}`; params.push(status); }
+    if (search) { combined += ` AND (email ILIKE $${pIdx} OR business_name ILIKE $${pIdx})`; params.push(`%${search}%`); pIdx++; }
+    combined += ` ORDER BY created_at DESC LIMIT $${pIdx++} OFFSET $${pIdx++}`;
+    params.push(limit, offset);
+    const result = await pool.query(combined, params);
+    return res.status(200).json(result.rows);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/client/:product/:id
+app.get('/api/admin/client/:product/:id', adminAuth, async (req, res) => {
+  try {
+    const { product, id } = req.params;
+    const table = product === 'blueprint' ? 'blueprints' : product === 'advertising' ? 'advertising_strategies' : 'website_blueprints';
+    const result = await pool.query(`SELECT * FROM ${table} WHERE id = $1`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Not found' });
+    return res.status(200).json(result.rows[0]);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/abandoned
+app.get('/api/admin/abandoned', adminAuth, async (req, res) => {
+  try {
+    const blueprintAbandoned = await pool.query(`SELECT id, email, business_name, 'blueprint' as product, created_at FROM blueprints WHERE payment_status = 'unpaid' ORDER BY created_at DESC LIMIT 100`);
+    const advAbandoned = await pool.query(`SELECT id, email, business_name, 'advertising' as product, created_at FROM advertising_strategies WHERE payment_status = 'unpaid' ORDER BY created_at DESC LIMIT 50`);
+    const webAbandoned = await pool.query(`SELECT id, email, business_name, 'website' as product, created_at FROM website_blueprints WHERE payment_status = 'unpaid' ORDER BY created_at DESC LIMIT 50`);
+    const all = [...blueprintAbandoned.rows, ...advAbandoned.rows, ...webAbandoned.rows].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return res.status(200).json(all);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/admin/revenue
+app.get('/api/admin/revenue', adminAuth, async (req, res) => {
+  try {
+    const blueprints = await pool.query(`SELECT id, email, business_name, 'Business Blueprint' as product, 1999 as amount_cents, created_at FROM blueprints WHERE payment_status = 'paid' ORDER BY created_at DESC`);
+    const advertising = await pool.query(`SELECT id, email, business_name, 'Advertising Strategy' as product, 1499 as amount_cents, created_at FROM advertising_strategies WHERE payment_status = 'paid' ORDER BY created_at DESC`);
+    const website = await pool.query(`SELECT id, email, business_name, 'Website Blueprint' as product, 999 as amount_cents, created_at FROM website_blueprints WHERE payment_status = 'paid' ORDER BY created_at DESC`);
+    const all = [...blueprints.rows, ...advertising.rows, ...website.rows].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return res.status(200).json(all);
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
 // ─── SPA FALLBACK ────────────────────────────────────────────────────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
