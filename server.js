@@ -5,6 +5,9 @@ import { fileURLToPath } from 'url';
 import Stripe from 'stripe';
 import pkg from 'pg';
 import { Resend } from 'resend';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { authenticator } from 'otplib';
 
 const { Pool } = pkg;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
